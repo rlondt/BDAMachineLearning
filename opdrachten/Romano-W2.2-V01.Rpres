@@ -1,0 +1,128 @@
+Opdracht Week2 (Onderdeel R)
+========================================================
+author: Romano
+date: 20-02-2019
+autosize: true
+
+Inlezen van het bestand 
+========================================================
+```{r include=FALSE}
+
+library(tidyverse)
+#setwd("/home/rstudio/BDAMachineLearning")
+
+```
+```{r echo=TRUE}
+
+# load file
+df <- read_delim(file="../datafiles/gbs.csv", delim = ",")
+
+
+```
+Factorize sensible columns
+========================================================
+```{r echo=TRUE}
+df$City <- as.factor(df$City)
+df$SalesOrg <- as.factor(df$SalesOrg)
+df$Product <- as.factor(df$Product)
+df$ProdCat <- as.factor(df$ProdCat)
+df$Division <- as.factor(df$Division)
+```
+Show stucture and some summary(1)
+========================================================
+```{r echo=TRUE}
+str(df)
+
+```
+Show stucture and some summary(2)
+========================================================
+```{r echo=TRUE}
+summary(df$YEAR)
+summary(df[c("Revenue", "Discount")])
+
+```
+Show quantile, range & IQR for some features
+========================================================
+```{r echo=TRUE}
+quantile(df$Revenue)
+range(df$Revenue)
+
+range(df$YEAR)
+
+diff(range(df$Revenue))
+
+IQR(df$Revenue)
+
+```
+Mean, variance and sd of Revenue
+========================================================
+```{r echo=TRUE}
+mean(df$Revenue)
+var(df$Revenue)
+sd(df$Revenue)
+
+
+```
+Visualization graphs (dataprep)
+========================================================
+```{r echo=TRUE}
+df$year_as_factor = as.factor(df$YEAR)
+
+df_sum <- df %>%
+  group_by(YEAR) %>%
+  summarize(
+    salescount = n(),
+    sum_revenue = sum(Revenue),
+    sum_discount = sum(Discount)
+  )
+
+df_sum_salesorg <- df %>%
+  group_by(YEAR, SalesOrg) %>%
+  summarize(
+    salescount = n(),
+    sum_revenue = sum(Revenue),
+    sum_discount = sum(Discount)
+  )
+
+df_sum_prodcat <- df %>%
+  group_by(YEAR, ProdCat) %>%
+  summarize(
+    salescount = n(),
+    sum_revenue = sum(Revenue),
+    sum_discount = sum(Discount)
+  )
+```
+Visualization graphs (revenue by year)
+========================================================
+```{r echo=TRUE}
+ggplot(df_sum, aes(y=sum_revenue, x=YEAR))+
+  geom_bar(stat="identity") 
+
+```
+Visualization graphs (revenue by salesorg)
+========================================================
+```{r echo=TRUE , fig.width=10, fig.height=10,fig.show='hold'}
+ggplot(df_sum_salesorg, aes(y=sum_revenue, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=SalesOrg ), position = position_fill() )
+
+ggplot(df_sum_salesorg, aes(y=sum_discount, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=SalesOrg ), position = position_fill() )
+
+ggplot(df_sum_salesorg, aes(y=sum_revenue-sum_discount, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=SalesOrg ), position = position_fill() )
+
+```
+Visualization graphs (revenue by productcategory)
+========================================================
+```{r echo=TRUE , fig.width=10, fig.height=10,fig.show='hold'}
+
+ggplot(df_sum_prodcat, aes(y=sum_revenue, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=ProdCat ), position = position_dodge() )
+
+ggplot(df_sum_prodcat, aes(y=sum_discount, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=ProdCat ), position = position_dodge() )
+
+ggplot(df_sum_prodcat, aes(y=sum_revenue-sum_discount, x=YEAR))+
+  geom_bar(stat="identity",aes( fill=ProdCat ), position = position_dodge() )
+
+```
